@@ -12,3 +12,12 @@ const errorHandler = (err, req, res, next) => {
 }
 
 module.exports = errorHandler 
+
+// first name
+// lastname
+// email
+
+// certificate
+// bio
+// pastworks
+// linkedin profile link
