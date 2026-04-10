@@ -1,13 +1,20 @@
+require('dotenv').config()
+const path = require('path')
 const express = require("express");
-const { logger, logEvents } = require('./middleware/logger')
-
-
 const app = express();
-const PORT = 5000
+const cors = require('cors')
+const corsOptions = require('./config/corsOptions')
+const connectDB = require('./config/dbConnex.js')
+const { 
+    logger, 
+    logEvents 
+} = require('./middlewares/logger')
+
+const PORT = process.env.PORT || 3500
 
 console.log(process.env.NODE_ENV)
 
-connectDB()
+// connectDB()
 
 app.use(logger)
 
@@ -17,6 +24,8 @@ app.use(express.json())
 
 // Routes
 app.use('/', require('./routes/root'))
+// app.use('/auth', require('./routes/authRoutes'))
+app.use('/student', require('./routes/studentRoutes'))
 
 app.get('/api/test', (req, res) => {
 	res.json({ message: 'API is working'})
@@ -24,7 +33,7 @@ app.get('/api/test', (req, res) => {
 
 
 // 404 
-app.all('*', (req, res) => {
+app.all(/.*/, (req, res) => {
     res.status(404)
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, 'views', '404.html'))
