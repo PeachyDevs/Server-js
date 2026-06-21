@@ -15,3 +15,8 @@ gh();
 
 
 // curl -X POST http://localhost:3500/student \ -H "Content-Type: application/json" \ -H "Authorization: Bearer YOUR_TOKEN_HERE" \ -d "{\"firstname\":\"Adam\",\"lastname\":\"Eden\",\"email\":\"adam@test.com\",\"password\":\"123456\"}"
+
+// $yndix205JWT_SECRET1234
+
+// curl -X POST http://localhost:3500/student \ -H "Content-Type: application/json" \ -H "Authorization: Bearer $yndix205JWT_SECRET1234" \ -d "{\"firstname\":\"Adam\",\"lastname\":\"Eden\",\"email\":\"adam@test.com\",\"password\":\"123456\"}"
+
