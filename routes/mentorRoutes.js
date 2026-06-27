@@ -1,15 +1,12 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   getMentors,
-  getMentorProfile,
-  updateMentor,
-  deleteMentor
+  getMentorProfile
 } = require("../controllers/mentor.controller.js");
 
 router.get("/", getMentors);
 router.get("/:id", getMentorProfile);
-router.put("/:id", updateMentor);
-router.delete("/:id", deleteMentor);
 
 module.exports = router;

@@ -1,16 +1,25 @@
 const pool = require("../config/dbConnex");
 
-// @desc Get all mentors
-// @route GET /mentors
-// @access Private
+// GET ALL MENTORS
 const getMentors = async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT u.id, u.firstname, u.lastname, u.email, m.expertise, m.years_of_experience, m.bio, u.created_at
+      `SELECT 
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.phone,
+        u.address,
+        u.bio,
+        u.avatar_url,
+        m.expertise,
+        m.years_of_experience,
+        m.bio AS mentor_bio,
+        m.created_at
        FROM users u
        JOIN mentors m ON u.id = m.user_id
        WHERE u.role = 'mentor'
-       ORDER BY u.created_at DESC`
+       ORDER BY m.created_at DESC`
     );
 
     res.status(200).json({
@@ -18,20 +27,31 @@ const getMentors = async (req, res) => {
       count: result.rows.length,
       data: result.rows
     });
+
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-// @desc Get mentor profile
-// @route GET /mentors/:id
-// @access Private
+// GET SINGLE MENTOR
 const getMentorProfile = async (req, res) => {
   const { id } = req.params;
+
   try {
     const result = await pool.query(
-      `SELECT u.id, u.firstname, u.lastname, u.email, m.expertise, m.years_of_experience, m.bio, u.created_at
+      `SELECT 
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.phone,
+        u.address,
+        u.bio,
+        u.avatar_url,
+        m.expertise,
+        m.years_of_experience,
+        m.bio AS mentor_bio,
+        m.created_at
        FROM users u
        JOIN mentors m ON u.id = m.user_id
        WHERE u.id = $1 AND u.role = 'mentor'`,
@@ -39,15 +59,19 @@ const getMentorProfile = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: "Mentor not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Mentor not found"
+      });
     }
 
     res.status(200).json({
       success: true,
       data: result.rows[0]
     });
+
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
