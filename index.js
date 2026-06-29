@@ -27,7 +27,7 @@ app.use("/", require("./routes/root"));
 // AUTH ROUTES (IMPORTANT - ADD THIS)
 app.use("/auth", require("./routes/authRoutes"));
 
-// PROTECTED USER ROUTES
+//) PROTECTED USER ROUTES
 app.use("/students", require("./routes/studentRoutes"));
 app.use("/mentors", require("./routes/mentorRoutes"));
 
