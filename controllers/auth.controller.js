@@ -27,10 +27,12 @@ const register = async (req, res) => {
             address,
             bio,
             avatar_url,
-            email,
             password,
             ...profileData
         } = req.body;
+
+        // Normalize email to prevent duplicates caused by capitalization
+        const email = req.body.email?.toLowerCase();
 
         if (!first_name || !last_name || !role || !email || !password) {
             return res.status(400).json({
@@ -129,7 +131,9 @@ const register = async (req, res) => {
  */
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const password = req.body.password;
+        // Normalize email to match the database stored format
+        const email = req.body.email?.toLowerCase();
 
         if (!email || !password) {
             return res.status(400).json({
@@ -210,7 +214,7 @@ const login = async (req, res) => {
  */
 const requestReset = async (req, res) => {
     try {
-        const { email } = req.body;
+        const email = req.body.email?.toLowerCase();
 
         const result = await pool.query(
             "SELECT id, email FROM users WHERE email = $1",
@@ -239,7 +243,12 @@ const requestReset = async (req, res) => {
             [token, expiry, user.id]
         );
 
-        const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+        // Dynamically assign URL based on the environment
+        const clientUrl = process.env.NODE_ENV === "Development" 
+            ? process.env.CLIENT_URL_DEV 
+            : process.env.CLIENT_URL_PROD;
+
+        const resetLink = `${clientUrl}/reset-password?token=${token}`;
 
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
