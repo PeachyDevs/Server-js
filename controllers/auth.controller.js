@@ -129,9 +129,16 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Email and password are required" });
+        }
+
         const result = await pool.query(
             "SELECT * FROM users WHERE email = $1",
-            [email.toLowerCase()]
+            [email.toLowerCase().trim()]
         );
         if (
             result.rows.length === 0 ||
@@ -171,41 +178,62 @@ const login = async (req, res) => {
  */
 const requestReset = async (req, res) => {
     try {
+        // 1. Prevent runtime crashes if email is missing in the payload
+        if (!req.body.email) {
+            return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        const emailInput = req.body.email.toLowerCase().trim();
+
+        // 2. Check if the user exists
         const result = await pool.query(
             "SELECT id FROM users WHERE email = $1",
-            [req.body.email.toLowerCase()]
+            [emailInput]
         );
-        if (result.rows.length === 0)
-            return res
-                .status(404)
-                .json({ success: false, message: "User not found" });
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
+        // 3. Generate token and 1-hour expiry
         const token = crypto.randomBytes(32).toString("hex");
-        const expiry = new Date(Date.now() + 3600000);
+        const expiry = new Date(Date.now() + 3600000); // 1 hour
+        
         await pool.query(
             "UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3",
             [token, expiry, result.rows[0].id]
         );
 
-        const link = `${process.env.NODE_ENV === "Development" ? process.env.CLIENT_URL_DEV : process.env.CLIENT_URL_PROD}/reset-password?token=${token}`;
+        // 4. Construct client-side routing link
+        const baseUrl = process.env.NODE_ENV === "Development" 
+            ? process.env.CLIENT_URL_DEV 
+            : process.env.CLIENT_URL_PROD;
+            
+        const link = `${baseUrl}/reset-password?token=${token}`;
 
-        // Configured for SendGrid
+        // 5. Build SendGrid message payload using your authenticated domain
         const msg = {
-            to: req.body.email.toLowerCase(),
-            from: process.env.EMAIL_USER, // This MUST be your SendGrid verified sender email (e.g., peachydevstudio@gmail.com)
-            subject: "Password Reset",
-            html: `<p>Reset your password here: <a href="${link}">Reset Link</a></p>`
+            to: emailInput,
+            from: "noreply@peachydevstudio.work.gd", 
+            subject: "Password Reset Request",
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; max-width: 600px;">
+                    <h2>Password Reset</h2>
+                    <p>You requested a password reset. Click the link below to choose a new password. This link expires in 1 hour.</p>
+                    <a href="${link}" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0;">Reset Password</a>
+                    <p>If you didn't request this, you can safely ignore this email.</p>
+                </div>
+            `
         };
 
         await sgMail.send(msg);
 
-        return res.json({ success: true, message: "Email sent" });
+        return res.json({ success: true, message: "Password reset email sent successfully." });
     } catch (e) {
-        // Logs the exact SendGrid rejection reason if it fails
+        // Logs precise API payload rejections from SendGrid
         console.error("🔥 SENDGRID ERROR:", e.response ? e.response.body : e);
         return res
             .status(500)
-            .json({ success: false, message: "Server error" });
+            .json({ success: false, message: "Server error during password reset request." });
     }
 };
 
@@ -215,6 +243,13 @@ const requestReset = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
+        
+        if (!token || !newPassword) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Token and new password are required" });
+        }
+
         const result = await pool.query(
             "SELECT id, reset_token_expiry FROM users WHERE reset_token = $1",
             [token]
