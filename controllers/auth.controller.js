@@ -114,6 +114,7 @@ const register = async (req, res) => {
         });
     } catch (error) {
         await client.query("ROLLBACK");
+        console.error("🔥 REGISTER ERROR:", error); // Logs the exact error to your terminal
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -199,6 +200,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("🔥 LOGIN ERROR:", error); // Logs the exact error to your terminal
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -262,6 +264,7 @@ const requestReset = async (req, res) => {
             message: "Reset email sent"
         });
     } catch (error) {
+        console.error("🔥 REQUEST RESET ERROR:", error); // Logs the exact error to your terminal
         return res.status(500).json({
             success: false,
             message: "Server error",
@@ -316,6 +319,7 @@ const resetPassword = async (req, res) => {
             message: "Password reset successful"
         });
     } catch (error) {
+        console.error("🔥 RESET PASSWORD ERROR:", error); // Logs the exact error to your terminal
         return res.status(500).json({
             success: false,
             message: "Server error",
