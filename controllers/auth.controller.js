@@ -208,7 +208,7 @@ const requestReset = async (req, res) => {
             ? process.env.CLIENT_URL_DEV 
             : process.env.CLIENT_URL_PROD;
             
-        const link = `${baseUrl}/reset-password?token=${token}`;
+        const link = `${baseUrl}/auth/reset-password?token=${token}`;
 
         // 5. Build SendGrid message payload using your authenticated domain
         const msg = {
