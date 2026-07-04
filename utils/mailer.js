@@ -6,8 +6,10 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  // These settings prevent the server from hanging indefinitely
-  connectionTimeout: 10000, // 10 seconds
+  // Force IPv4 to resolve ENETUNREACH
+  family: 4, 
+  // Keep your timeout settings
+  connectionTimeout: 10000,
   greetingTimeout: 10000,
   socketTimeout: 10000
 });
