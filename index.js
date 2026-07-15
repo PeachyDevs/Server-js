@@ -52,3 +52,14 @@ app.all(/.*/, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+// rate limiting the password tries for login attempts
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many attempts, please try again later.' }
+});
+
+app.use('/auth', authLimiter);
