@@ -27,20 +27,20 @@ const registerSchema = Joi.object({
     address: Joi.string().optional(),
     bio: Joi.string().optional(),
     avatar_url: Joi.string().uri().optional(),
-    school: Joi.string().when("role", { is: "student", then: Joi.required() }),
-    grade_level: Joi.string().when("role", {
-        is: "student",
-        then: Joi.required()
-    }),
+    // school: Joi.string().when("role", { is: "student", then: Joi.required() }),
+    // grade_level: Joi.string().when("role", {
+    //     is: "student",
+    //     then: Joi.required()
+    // }),
     interests: Joi.array().items(Joi.string()).optional(),
-    expertise: Joi.string().when("role", {
-        is: "mentor",
-        then: Joi.required()
-    }),
-    years_of_experience: Joi.number().when("role", {
-        is: "mentor",
-        then: Joi.required()
-    })
+    // expertise: Joi.string().when("role", {
+    //     is: "mentor",
+    //     then: Joi.required()
+    // }),
+    // years_of_experience: Joi.number().when("role", {
+    //     is: "mentor",
+    //     then: Joi.required()
+    // })
 });
 
 /**
