@@ -1,6 +1,6 @@
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://educonnect-niv2v2nvb-peachy-dev-studio.vercel.app"
+    "https://educonnect-eight-lake.vercel.app"
 ];
 
 module.exports = allowedOrigins;
